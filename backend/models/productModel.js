@@ -29,17 +29,59 @@ class ProductModel {
     }
   
     async getProducts(connection) {
-        try 
-        {
-            const [results] = await connection.query('SELECT * FROM Products');
-            return results;
-        } 
-        catch (error) 
-        {
-            console.error(error);
-            throw new Error('Error getting products');
+        try {
+          const [results] = await connection.query(`
+            SELECT P.*, GROUP_CONCAT(Pic.imgPath, '|', Pic.imgName) AS Pictures
+            FROM Products P
+            LEFT JOIN Pictures Pic ON P.id_Product = Pic.id_Product
+            GROUP BY P.id_Product
+          `);
+    
+          return results.map((result) => {
+            const product = { ...result };
+            if (product.Pictures) {
+              product.Pictures = product.Pictures.split(',').map((pic) => {
+                const [imgPath, imgName] = pic.split('|');
+                return { imgPath, imgName };
+              });
+            }
+            return product;
+          });
+        } catch (error) {
+          console.error(error);
+          throw new Error('Error getting products');
         }
     }
+
+    async getProductById(connection, productId) {
+        try {
+          const [results] = await connection.query(`
+            SELECT P.*, GROUP_CONCAT(Pic.imgPath, '|', Pic.imgName) AS Pictures
+            FROM Products P
+            LEFT JOIN Pictures Pic ON P.id_Product = Pic.id_Product
+            WHERE P.id_Product = ?
+            GROUP BY P.id_Product
+          `, [productId]);
+    
+          if (results.length === 0) {
+            return null;
+          }
+    
+          const product = { ...results[0] };
+    
+          if (product.Pictures) {
+            product.Pictures = product.Pictures.split(',').map((pic) => {
+              const [imgPath, imgName] = pic.split('|');
+              return { imgPath, imgName };
+            });
+          }
+    
+          return product;
+        } catch (error) {
+          console.error(error);
+          throw new Error('Error getting product by ID');
+        }
+      }
   
     async deleteProduct(connection, productId) {
         try 

@@ -26,6 +26,21 @@ class UserModel {
     }
   }
 
+  async getUserById(connection, userId) {
+    try {
+      const [results] = await connection.query('SELECT * FROM Users WHERE id_User = ?', [userId]);
+
+      if (results.length === 0) {
+        return null; // User not found
+      }
+
+      return results[0];
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error getting user by ID');
+    }
+  }
+
   async deleteUser(connection, userId) {
     try {
       await connection.query('DELETE FROM Users WHERE id_User = ?', [userId]);

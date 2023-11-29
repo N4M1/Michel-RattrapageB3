@@ -30,6 +30,27 @@ class UserController {
     }
   }
 
+  async getUserById(req, res) {
+    const { id } = req.params;
+    const connection = await req.mysql.getConnection();
+
+    try {
+      const user = await userModel.getUserById(connection, id);
+
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+
+      res.json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+      connection.release();
+    }
+  }
+
   async deleteUser(req, res) {
     const userId = req.params.id;
     const connection = await req.mysql.getConnection();
