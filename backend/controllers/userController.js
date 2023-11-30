@@ -84,7 +84,7 @@ class UserController {
       return res.status(401).json({ error: 'Invalid credentials pass' });
     }
 
-    const token = jwt.sign({ userId: user.id_User }, 'your-secret-key', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id_User }, 'jaime les mandarines', { expiresIn: '1h' });
 
     res.json({ token });
   }
