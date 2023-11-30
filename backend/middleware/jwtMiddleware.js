@@ -8,7 +8,6 @@ function verifyToken(req, res, next) {
   }
 
   jwt.verify(token, 'jaime les mandarines', (err, decoded) => {
-    console.log(token)
     if (err) {
       return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
