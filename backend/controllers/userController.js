@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
 const userModel = require('../models/userModel');
 
 class UserController {
@@ -65,6 +68,27 @@ class UserController {
       connection.release();
     }
   }
+
+  async loginUser(req, res) {
+    const { EMail, PassWords } = req.body;
+
+    const user = await userModel.getUserByEmail(req.mysql, EMail);
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials mail' });
+    }
+
+    const passwordMatch = await bcrypt.compare(PassWords, user.PassWords);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid credentials pass' });
+    }
+
+    const token = jwt.sign({ userId: user.id_User }, 'your-secret-key', { expiresIn: '1h' });
+
+    res.json({ token });
+  }
+
 }
 
 module.exports = new UserController();

@@ -54,6 +54,22 @@ class UserModel {
       throw new Error('Error deleting user');
     }
   }
+
+  async getUserByEmail(connection, email) {
+    try {
+      const [results] = await connection.query('SELECT * FROM Users WHERE EMail = ?', [email]);
+
+      if (results.length === 0) {
+        return null; // User not found
+      }
+
+      return results[0];
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error getting user by email');
+    }
+  }
+  
 }
 
 module.exports = new UserModel();
