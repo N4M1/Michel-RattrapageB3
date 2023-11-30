@@ -1,11 +1,15 @@
+const bcrypt = require('bcrypt');
+
 class UserModel {
   async createUser(connection, userData) {
     const { FirstName, LastName, EMail, PassWords, Address, BithDate } = userData;
 
     try {
+      const hashedPassword = await bcrypt.hash(PassWords, 10);
+
       const [results] = await connection.query(
         'INSERT INTO Users (FirstName, LastName, EMail, PassWords, Address, BithDate) VALUES (?, ?, ?, ?, ?, ?)',
-        [FirstName, LastName, EMail, PassWords, Address, BithDate]
+        [FirstName, LastName, EMail, hashedPassword, Address, BithDate]
       );
 
       const userId = results.insertId;
