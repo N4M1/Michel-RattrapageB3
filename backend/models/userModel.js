@@ -5,6 +5,13 @@ class UserModel {
     const { FirstName, LastName, EMail, PassWords, Address, BithDate } = userData;
 
     try {
+      // Check if the email already exists
+      const [existingUsers] = await connection.query('SELECT * FROM Users WHERE EMail = ?', [EMail]);
+
+      if (existingUsers.length > 0) {
+        // Email already exists, return an error
+        return { error: 'Email already exists' };
+      }
       const hashedPassword = await bcrypt.hash(PassWords, 10);
 
       const [results] = await connection.query(
@@ -35,7 +42,7 @@ class UserModel {
       const [results] = await connection.query('SELECT * FROM Users WHERE id_User = ?', [userId]);
 
       if (results.length === 0) {
-        return null; // User not found
+        return null;
       }
 
       return results[0];
@@ -60,7 +67,7 @@ class UserModel {
       const [results] = await connection.query('SELECT * FROM Users WHERE EMail = ?', [email]);
 
       if (results.length === 0) {
-        return null; // User not found
+        return null;
       }
 
       return results[0];
@@ -69,7 +76,7 @@ class UserModel {
       throw new Error('Error getting user by email');
     }
   }
-  
+
 }
 
 module.exports = new UserModel();
